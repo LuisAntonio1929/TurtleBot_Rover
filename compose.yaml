@@ -1,0 +1,28 @@
+services:
+  ros2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        ROS_DISTRO: jazzy
+
+    container_name: turtlebot_rover_ros2
+
+    volumes:
+      - ./ros2_ws:/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /mnt/wslg:/mnt/wslg
+
+    ports:
+      - "8765:8765"
+
+    environment:
+      ROS_DOMAIN_ID: "42"
+      DISPLAY: "${DISPLAY}"
+      WAYLAND_DISPLAY: "${WAYLAND_DISPLAY}"
+      XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
+      PULSE_SERVER: "${PULSE_SERVER}"
+      QT_X11_NO_MITSHM: "1"
+
+    stdin_open: true
+    tty: true
