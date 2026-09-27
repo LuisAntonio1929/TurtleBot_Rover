@@ -7,6 +7,7 @@ services:
         ROS_DISTRO: jazzy
 
     container_name: turtlebot_rover_ros2
+    hostname: turtlebot-ros2
 
     volumes:
       - ./ros2_ws:/ros2_ws
@@ -23,6 +24,8 @@ services:
       XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
       PULSE_SERVER: "${PULSE_SERVER}"
       QT_X11_NO_MITSHM: "1"
+      TERM: "xterm-256color"
+      COLORTERM: "truecolor"
 
     stdin_open: true
     tty: true
