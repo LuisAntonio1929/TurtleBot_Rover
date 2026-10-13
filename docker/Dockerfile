@@ -13,6 +13,7 @@ ENV TERM=xterm-256color
 # ============================================================
 RUN apt-get update && apt-get install -y \
     ros-${ROS_DISTRO}-desktop \
+    ros-${ROS_DISTRO}-rmw-zenoh-cpp \
     python3-colcon-common-extensions \
     python3-rosdep \
     python3-pip \
@@ -24,6 +25,8 @@ RUN apt-get update && apt-get install -y \
     bash-completion \
     iputils-ping \
     net-tools \
+    iproute2 \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================

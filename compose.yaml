@@ -1,5 +1,35 @@
 services:
+
+  zenoh-router:
+    image: turtlebot_rover-ros2:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        ROS_DISTRO: jazzy
+
+    container_name: turtlebot_rover_zenoh
+
+    volumes:
+      - ./ros2_ws/config/zenoh:/config/zenoh:ro
+
+    ports:
+      - "7447:7447/tcp"
+
+    environment:
+      ZENOH_ROUTER_CONFIG_URI: "/config/zenoh/router.json5"
+
+    command: >
+      bash -lc "
+      source /opt/ros/jazzy/setup.bash &&
+      exec ros2 run rmw_zenoh_cpp rmw_zenohd
+      "
+
+    restart: unless-stopped
+
+
   ros2:
+    image: turtlebot_rover-ros2:latest
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -9,23 +39,30 @@ services:
     container_name: turtlebot_rover_ros2
     hostname: turtlebot-ros2
 
+    depends_on:
+      - zenoh-router
+
     volumes:
       - ./ros2_ws:/ros2_ws
+      - ./ros2_ws/config/zenoh:/config/zenoh:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /mnt/wslg:/mnt/wslg
 
-    ports:
-      - "8765:8765"
-
     environment:
-      ROS_DOMAIN_ID: "42"
+      ROS_DOMAIN_ID: "30"
+      RMW_IMPLEMENTATION: "rmw_zenoh_cpp"
+      ZENOH_SESSION_CONFIG_URI: "/config/zenoh/client.json5"
+
       DISPLAY: "${DISPLAY}"
       WAYLAND_DISPLAY: "${WAYLAND_DISPLAY}"
       XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
       PULSE_SERVER: "${PULSE_SERVER}"
+
       QT_X11_NO_MITSHM: "1"
       TERM: "xterm-256color"
       COLORTERM: "truecolor"
 
     stdin_open: true
     tty: true
+
+    restart: unless-stopped
