@@ -2,7 +2,7 @@
   mode: "client",
   connect: {
     endpoints: [
-      "tcp/zenoh-router:7447"
+      "tcp/turtlebot3.local:7447"
     ]
   }
 }
