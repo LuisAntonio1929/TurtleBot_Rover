@@ -1,6 +1,7 @@
 services:
   ros2:
     image: turtlebot_rover-ros2:latest
+
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -10,26 +11,41 @@ services:
     container_name: turtlebot_rover_ros2
     hostname: turtlebot-ros2
 
+    # Used only when connecting to the physical TurtleBot.
+    # In simulation mode the fallback value is harmless.
     extra_hosts:
       - "turtlebot3.local:${TURTLEBOT_IP:-127.0.0.1}"
 
     volumes:
+      # ROS 2 workspace
       - ./ros2_ws:/ros2_ws
+
+      # Zenoh configuration for the physical robot
       - ./ros2_ws/config/zenoh:/config/zenoh:ro
+
+      # GUI support through WSLg
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /mnt/wslg:/mnt/wslg
 
     environment:
+      # Common configuration for simulation and real robot
       ROS_DOMAIN_ID: "30"
-      RMW_IMPLEMENTATION: "rmw_zenoh_cpp"
-      ZENOH_SESSION_CONFIG_URI: "/config/zenoh/client.json5"
+      TURTLEBOT3_MODEL: "burger"
 
+      # Simulation is the default mode.
+      # scripts/start.sh overrides these two variables
+      # when connecting to the physical TurtleBot.
+      RMW_IMPLEMENTATION: "${TB_RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}"
+      ZENOH_SESSION_CONFIG_URI: "${TB_ZENOH_SESSION_CONFIG_URI:-}"
+
+      # WSLg / GUI
       DISPLAY: "${DISPLAY}"
       WAYLAND_DISPLAY: "${WAYLAND_DISPLAY}"
       XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
       PULSE_SERVER: "${PULSE_SERVER}"
 
       QT_X11_NO_MITSHM: "1"
+
       TERM: "xterm-256color"
       COLORTERM: "truecolor"
 
